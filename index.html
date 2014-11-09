@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Winxle-LiveStats</title>
+<script src="http://www.google.com/jsapi"></script>
+<script>google.load("jquery", "1.3")</script>
+<script src="http://jquery-json.googlecode.com/files/jquery.json-2.2.min.js"></script>
+<script src="http://jquery-websocket.googlecode.com/files/jquery.websocket-0.0.1.js"></script>
+</head>
+<body>
+<h1>Winxle-LiveStats</h1>
+
+<p>Reporting since <span id="startuptime">0</span>.</p>
+
+<table border=1>
+  <thead>
+    <tr>
+      <th>Metric</th>
+      <th>Starting Value</th>
+      <th>Increments</th>
+      <th>Current Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Verified User</td>
+      <td id="verified_user_start">0</td>
+      <td id="verified_user_inc">0</td>
+      <td id="verified_user_current">0</td>
+    </tr>
+    <tr>
+      <td>Unverified User</td>
+      <td id="unverified_user_start">0</td>
+      <td id="unverified_user_inc">0</td>
+      <td id="unverified_user_current">0</td>
+    </tr>
+    <tr>
+      <td>Participations</td>
+      <td id="participations_start">0</td>
+      <td id="participations_inc">0</td>
+      <td id="participations_current">0</td>
+    </tr>
+    <tr>
+      <td>Points gained</td>
+      <td id="points_gained_start">0</td>
+      <td id="points_gained_inc">0</td>
+      <td id="points_gained_current">0</td>
+    </tr>
+    <tr>
+      <td>Points spent</td>
+      <td id="points_spent_start">0</td>
+      <td id="points_spent_inc">0</td>
+      <td id="points_spent_current">0</td>
+    </tr>
+  </tbody>
+</table>
+
+<script>
+
+var ws = $.websocket("ws://127.0.0.1:4040/", {
+  events: {
+    setup: function(e) {
+      jQuery.each(e.data, function(name, value){
+        $('#' + name + '_start').html(value);
+        $('#' + name + '_current').html(value);
+      });
+      $('#startuptime').html(e.startuptime);
+    },
+    increment: function(e) {
+      var val = parseInt(e.value);
+      $('#' + e.key + '_inc' ).html(parseInt($('#' + e.key +'_inc' ).html(), 10) + val )
+      $('#' + e.key + '_current' ).html(parseInt($('#' + e.key + '_current' ).html(), 10) + val)
+    }
+  }
+});
+
+ws.onopen = function (event) {
+  ws.send('setup');
+};
+
+</script>
+</body>
+</html>
